@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# Tree sequence files (large binary files)
+*.trees
+*.trees.tsz
+
+# Compressed data files
+*.gz
+
+# Large output files
+reduced_samples_output/*.csv
+reduced_samples_output/*.txt
+
+# Keep PNG plots for README
+!reduced_samples_output/*.png
+
+# Temporary files
+*.tmp
+.DS_Store
+
+# dolores submodule/clone (separate repository)
+dolores/

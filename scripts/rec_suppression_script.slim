@@ -1,0 +1,102 @@
+//// Simple Recombination Suppression Mutation ////
+
+initialize() {
+	initializeMutationRate(0);
+	initializeMutationType('m1', 0.5, 'f', 0.0); //neutral mutations, not relevant, but if so add them with msprime
+	initializeMutationType('m2', 0.5, 'f', 0.0); //suppressor
+	m2.convertToSubstitution = F;
+	m2.color = 'red'; // just for check in GUI, can be deleted
+		
+	
+	// ts
+	initializeTreeSeq(timeUnit="generations");
+	
+	// model parameters given to SLIM from script 
+
+	// very simple genome 
+	initializeGenomicElementType('g1', m1, 1.0);
+	initializeGenomicElement(g1, 0, l-1); // genome length
+	
+	
+	initializeRecombinationRate(exp_r); // uniform rec rate, easy extension would be to load a real recombination map or init a random one
+}
+
+1 early() {
+	defineConstant('simID', getSeed()); // taken from the recepie 9.3 to make the sim conditional on establisment 
+	sim.addSubpop('p1', n); 
+}
+
+1 late() {
+	//save before introducing the suppressor
+	sim.treeSeqOutput(tempdir() + 'slim_' + simID + '.txt'); 
+	
+	// introduce suppressor
+	targets = sample(p1.individuals, n_intro);
+	for (ind in targets)
+		ind.haplosomes[0].addNewDrawnMutation(m2, sup_pos);
+}
+
+1: late() {
+	mut = sim.mutationsOfType(m2);
+	
+	//check if mutation is lost. if so, restart and stop reading this block.
+	if (size(mut) == 0){
+		sim.readFromPopulationFile(tempdir() + "slim_" + simID + ".txt");
+		
+		setSeed(rdunif(1, 0, asInteger(2^62) - 1));
+		
+		targets = sample(p1.individuals, n_intro);
+		for (ind in targets)
+			ind.haplosomes[0].addNewDrawnMutation(m2, sup_pos);
+		
+		return;
+	}
+	freq = sum(sim.mutationFrequencies(NULL, mut)); 
+	act_clade_size = freq * n;
+	
+	if (isNULL(clade_size)){
+		return;
+	} 
+	if (act_clade_size >= clade_size){
+		sim.simulationFinished();
+		sim.treeSeqOutput(outfile);
+	}
+}
+
+recombination() {
+    gt = individual.countOfMutationsOfType(m2);
+    if (gt == 0)
+        return F;  // wild-type: use default recombination (unchanged)
+
+    // Fixed formula: alpha is the reduction, so realized = 1 - alpha
+    rateMultiplier = (gt == 1) ? 1.0 - h * alpha else 1.0 - alpha;
+
+    breaks = integer(0);
+
+    // Region 1: normal
+    n1 = rpois(1, exp_r * sup_start);
+    if (n1 > 0) breaks = c(breaks, rdunif(n1, 0, sup_start - 1));
+
+    // Region 2: suppressed
+    n2 = rpois(1, exp_r * rateMultiplier * (sup_end - sup_start));
+    if (n2 > 0) breaks = c(breaks, rdunif(n2, sup_start, sup_end - 1));
+
+    // Region 3: normal
+    n3 = rpois(1, exp_r * (l - sup_end));
+    if (n3 > 0) breaks = c(breaks, rdunif(n3, sup_end, l - 1));
+
+    if (size(breaks) > 0)
+        breakpoints = sort(unique(breaks));
+    else
+        breakpoints = integer(0);
+
+    return T;  // carriers: use our modified breakpoints
+}
+
+2*n late() {
+	mut = sim.mutationsOfType(m2);
+	print(sim.mutationFrequencies(NULL, mut));
+	sim.treeSeqOutput(outfile);
+	sim.simulationFinished();
+}
+
