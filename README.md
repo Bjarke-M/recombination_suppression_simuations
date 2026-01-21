@@ -4,7 +4,7 @@ This repository contains a simulation pipeline for modeling a mutation that supp
 
 ## Overview
 
-The simulation models a scenario where a mutation (e.g., an inversion) suppresses recombination in a defined genomic window around it. Carriers of this mutation experience reduced recombination rates within the suppressed region, while non-carriers recombine normally.
+The simulation models a scenario where a mutation suppresses recombination in a defined genomic window around it. Carriers of this mutation experience reduced recombination rates within the suppressed region, while non-carriers recombine normally.
 
 ## Pipeline
 
