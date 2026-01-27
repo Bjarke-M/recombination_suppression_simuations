@@ -29,4 +29,4 @@ for i in keep_indivs:
   keep_nodes.extend(rts.individual(i).nodes)
 
 sts = rts.simplify(keep_nodes, keep_input_roots=True)
-sts.dump('../reduced_samples.trees')  
+sts.dump('../example.trees')  

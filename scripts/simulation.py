@@ -50,7 +50,7 @@ subprocess.call(['slim',
 ################## Recapitate ##################
 
 infile = 'recomb_suppressor_example.trees'
-recap_outfile = '../example.trees'
+recap_outfile = '../example_full.trees'
 ancestral_ne = 1000
 recomb_rate = 1e-6
 
