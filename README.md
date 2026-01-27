@@ -51,8 +51,8 @@ pip install -r dolores/requirements.txt
 Main orchestrator script that runs the SLiM simulation and subsequent recapitation. Execute from the `scripts/` directory:
 
 ```bash
-cd scripts
-python simulation.py
+cd dolores
+python python ../scripts/simulation.py 
 ```
 
 ### rec_suppression_script.slim

@@ -20,6 +20,7 @@ the requirements for the script to run is, pyslim, msprime, slim, tskit, numpy
 ################## Run SLIM ##################
 
 n = int(1000)
+seed = int(795526450) # delete seed information if you ever want it to give other outputs or random generate it here directly (probably the better option)
 n_intro = int(1)
 l = int(1000000) 
 sup_pos = int(l/2)
@@ -29,9 +30,10 @@ clade_size = 'NULL'
 alpha = 0.9999
 h = 1.0
 uni_rec_rate = 1e-6
-outfile = 'recomb_suppressor.trees'
+outfile = 'recomb_suppressor_example.trees'
 
 subprocess.call(['slim',
+                       '-seed', f'{seed}',
                        '-d', f'n={n}',
                        '-d', f'n_intro={n_intro}',
                        '-d', f'l={l}',
@@ -43,19 +45,35 @@ subprocess.call(['slim',
                        '-d', f'h={h}',
                        '-d', f'exp_r={uni_rec_rate}',
                        '-d', f'outfile="{outfile}"',
-                       'rec_suppression_script.slim'])
+                       '../scripts/rec_suppression_script.slim'])
 
 ################## Recapitate ##################
 
-infile = 'recomb_suppressor.trees'
-recap_outfile = 'recomb_suppressor_recap.trees'
+infile = 'recomb_suppressor_example.trees'
+recap_outfile = '../example.trees'
 ancestral_ne = 1000
 recomb_rate = 1e-6
 
 subprocess.call(['python',
-                 'rec_suppression_recapitation.py',
+                 '../scripts/rec_suppression_recapitation.py',
                  f'{infile}',
                  f'{ancestral_ne}',
                  f'{recomb_rate}',
-                 f'{recap_outfile}'])
+                 f'{recap_outfile}',
+                 f'{seed}'])
 
+
+################## Run dolores ##################
+
+subprocess.call([
+    'python',
+    '-m', 'run-dolores',
+    '-C', 'chr1',
+    '-n', 'example',
+    '-t', '..', 
+    '-g', '../uniform_recmap.txt',
+    '-M', '0', 
+    '-m', '0',
+    '-c', '0',
+    '-u', '0'
+])

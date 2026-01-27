@@ -7,18 +7,21 @@ file = sys.argv[1]
 ancestral_pop_size = int(sys.argv[2])
 recomb_rate = float(sys.argv[3])
 outfile = sys.argv[4]
+seed = int(sys.argv[5])
+print(seed)
 
 orig_ts = ts.load(file)
 rts = pyslim.recapitate(orig_ts,
             recombination_rate=recomb_rate,
-            ancestral_Ne=ancestral_pop_size)
+            ancestral_Ne=ancestral_pop_size,
+            random_seed=seed)
 
 rts.dump(outfile)
 
 ## for testing 
 
 
-rng = np.random.default_rng(seed=3342)
+rng = np.random.default_rng(seed=seed)
 alive_inds = pyslim.individuals_alive_at(rts, 0)
 keep_indivs = rng.choice(alive_inds, 100, replace=False)
 keep_nodes = []
